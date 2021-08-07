@@ -1,4 +1,4 @@
-# Very short description of the package
+# Filesize
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/resohead/filesize.svg?style=flat-square)](https://packagist.org/packages/resohead/filesize)
 [![Total Downloads](https://img.shields.io/packagist/dt/resohead/filesize.svg?style=flat-square)](https://packagist.org/packages/resohead/filesize)
