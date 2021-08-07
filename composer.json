@@ -1,0 +1,42 @@
+{
+    "name": "resohead/filesize",
+    "description": "Convert file sizes to/from different units with a fluent API - like Carbon but for file size.",
+    "keywords": [
+        "resohead",
+        "filesize",
+        "bytes",
+        "conversion"
+    ],
+    "homepage": "https://github.com/resohead/filesize",
+    "license": "MIT",
+    "type": "library",
+    "authors": [
+        {
+            "name": "Sean White",
+            "email": "s.white9904@gmail.com",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^8.0"
+    },
+    "require-dev": {
+        "pestphp/pest": "^1.15"
+    },
+    "autoload": {
+        "psr-4": {
+            "Resohead\\Filesize\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Resohead\\Filesize\\Tests\\": "tests"
+        }
+    },
+    "scripts": {
+        "test": "vendor/bin/pest"
+    },
+    "config": {
+        "sort-packages": true
+    }
+}
