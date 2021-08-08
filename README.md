@@ -15,33 +15,70 @@ composer require resohead/filesize
 
 ## Usage
 
-### Basic
+### Basics
 
 ```php
-(new Filesize)->fromGigabytes(5000)
-    ->toTerabytes()
-    ->round(2)
-    ->asNumber(); // 4.88
+$filesize = new FileSize;
+```
 
-(new Filesize)->fromGigabytes(1)
+```php
+$filesize->from(1200)->toKilobytes()->asNumber(); // 1.0
+$filesize->fromBytes(1200)->toKilobytes()->asNumber(2); // 1.2
+$filesize->fromBytes(1200)->toKibibytes()->asNumber(2); // 1.17
+
+$filesize->fromKilobytes(1)->toKibibytes()->round(3)->asNumber(); // 0.977
+$filesize->fromKilobytes(1)->toBytes()->asInteger(); // 1000
+
+$filesize->fromKibibytes(1)->toBytes()->asInteger(); // 1024
+
+$filesize->fromBytes(1024)->toKilobytes()->round(3)->asNumber(); //1.024
+$filesize->fromBytes(1000)->toKilobytes()->round(3)->asNumber(); //1.000
+
+$filesize->fromBytes(1024)->toKibibytes()->round(3)->asNumber(); //1.000
+$filesize->fromBytes(1000)->toKibibytes()->round(3)->asNumber(); //0.977
+
+$filesize->fromKilobytes(1.2)->asNumber(); // 1200
+$filesize->fromKilobytes(1.2)->toSame()->asNumber(); // 1.2
+
+$filesize->fromGigabytes(5000))
+        ->toTerabytes()
+        ->asNumber(2); // 5.0
+
+$filesize->fromGibibytes(5000))
+        ->toTebibytes()
+        ->asNumber(2); // 4.88
+
+$filesize->fromGigabytes(1)
     ->toMegabytes()
     ->round(3)
-    ->withThousandSeparator('.') // defaults to ","
-    ->withDecimalSeparator(',') // defaults to "."
-    ->asString(); // "1.073,742 MB"
+    ->withThousandSeparator() // optional - default: ","
+    ->withDecimalSeparator() // optional - default: "."
+    ->asString(); // "1,073.742 MB"
 ```
 
 ### For Humans
 This will automatically convert the given size to the most useful human format.
 
 ```php
-(new Filesize)->fromBytes(1073741824)->forHumans(); // "1 GB"
 
-(new Filesize)->fromBytes(1073741824)->round(2)->forHumans(); // "1.07 GB"
+$filesize->fromBytes(1073741824)->round(2)->forHumans(); // "1.07 GB"
 
-(new Filesize)->fromGigabytes(0.5)->forHumans(); // "512 MB"
+$filesize->fromGigabytes(0.5)->forHumans(); // "512 MB"
 
-(new Filesize)->fromMegabytes(56156113)->forHumans(); // "53.55 TB"
+$filesize->fromBytes(15000)->inBinary()->round(1)->forHumans(); // '14.6 KiB', or
+$filesize->fromBytes(15000)->toKibibytes()->round(1)->forHumans(); // '14.6 KiB'
+
+$filesize->fromBytes(15000)->inDecimal()->round(1)->forHumans(); // '15.0 KB', or
+$filesize->fromBytes(15000)->toKibibytes()->round(1)->forHumans(); // '15.0 KB'
+
+$filesize->fromBytes(1073741824)->forHumans(); // "1 GB"
+
+$filesize->fromBytes(1073741824)->forHumans(); // "1.00 GiB"
+$filesize->fromBytes(1073741824)->toKibtyes()->forHumans(); // "1.00 GiB"
+$filesize->fromBytes(1073741824)->toMegabytes()->forHumans(); // "1.07 GB"
+$filesize->fromBytes(1073741824)->inDecimal()->forHumans(); // "1.07 GB"
+
+$filesize->fromMegabytes(56156113)->forHumans(); // "53.55 TB"
 ```
 
 ### Parse input from string

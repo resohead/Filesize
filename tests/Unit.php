@@ -222,6 +222,7 @@ test('it can convert from bytes to gib', function () {
     expect((new FileSize)->fromBytes(1_073_741_824))
         ->toMebibytes()->asNumber()->toEqual(1024)
         ->toKibibytes()->asNumber()->toEqual(1_048_576)
+        ->toKilobytes()->asNumber(2)->toEqual(1_073_741.82)
         ->toGiB()->round(2)->asNumber()->toEqual(1.00)
         ->toGb()->round(2)->asNumber()->toEqual(1.07);
 });

@@ -399,9 +399,24 @@ class FileSize
         return $this->toTerabytes();
     }
 
+    public function toTebibytes(): self
+    {
+        return $this->to(self::TEBIBYTE);
+    }
+
+    public function toTib(): self
+    {
+        return $this->toTebibytes();
+    }
+
     public function toPetabytes(): self
     {
         return $this->to(self::PETABYTE);
+    }
+
+    public function toPebibytes(): self
+    {
+        return $this->to(self::PEBIBYTE);
     }
 
     public function toPb(): self
@@ -409,9 +424,19 @@ class FileSize
         return $this->toPetabytes();
     }
 
+    public function toPib(): self
+    {
+        return $this->toPebibytes();
+    }
+
     public function toExabytes(): self
     {
         return $this->to(self::EXABYTE);
+    }
+
+    public function toExbibyte(): self
+    {
+        return $this->to(self::EXBIBYTE);
     }
 
     public function toEb(): self
@@ -419,9 +444,19 @@ class FileSize
         return $this->toExabytes();
     }
 
+    public function toEib(): self
+    {
+        return $this->toExbibyte();
+    }
+
     public function toZettabytes(): self
     {
         return $this->to(self::ZETTABYTE);
+    }
+
+    public function toZebibytes(): self
+    {
+        return $this->to(self::ZEBIBYTE);
     }
 
     public function toZb(): self
@@ -429,14 +464,29 @@ class FileSize
         return $this->toZettabytes();
     }
 
+    public function toZib(): self
+    {
+        return $this->toZebibytes();
+    }
+
     public function toYottabytes(): self
     {
         return $this->to(self::YOTTABYTES);
     }
 
+    public function toYobibytes(): self
+    {
+        return $this->to(self::YOBIBYTE);
+    }
+
     public function toYb(): self
     {
         return $this->toYottabytes();
+    }
+
+    public function toYib(): self
+    {
+        return $this->toYobibytes();
     }
 
     public function withDecimalSeparator(string $separator): self
