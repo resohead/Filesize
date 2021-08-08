@@ -47,8 +47,8 @@ This will automatically convert the given size to the most useful human format.
 ### Parse input from string
 ``` php
 Filesize::parse('1 KB')->toBytes()->asInteger(); // 1024
-Filesize::parse('1 KB')->parse('1024 B')->toKilobytes()->asString(); // "1 KB"
-Filesize::parse('1 KB')->parse('1024 B')->round(3)->toMb()->asString(); // "0.001 MB"
+Filesize::parse('1 KB')->toKilobytes()->asString(); // "1 KB"
+Filesize::parse('1 KB')->round(3)->toMb()->asString(); // "0.001 MB"
 ```
 
 ### Testing
