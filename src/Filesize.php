@@ -10,7 +10,8 @@ class FileSize
     protected $precision = null;
     protected string $decimalSeparator = '.';
     protected string $thousandSeparator = ',';
-    protected string $unit = 'B';
+    protected ?string $unit = null;
+    protected string $from = self::BYTE;
     protected int $base = 2;
 
     const BYTE = 'B';
@@ -23,7 +24,16 @@ class FileSize
     const ZETTABYTE = 'ZB';
     const YOTTABYTES = 'YB';
 
-    const BYTE_UNITS = [
+    const KIBIBYTE = 'KiB';
+    const MEBIBYTE = 'MiB';
+    const GIBIBYTE = 'GiB';
+    const TEBIBYTE = 'TiB';
+    const PEBIBYTE = 'PiB';
+    const EXBIBYTE = 'EiB';
+    const ZEBIBYTE = 'ZiB';
+    const YOBIBYTE = 'YiB';
+
+    const DECIMAL_BYTE_UNITS = [
         self::BYTE,
         self::KILOBYTE,
         self::MEGABYTE,
@@ -32,17 +42,34 @@ class FileSize
         self::PETABYTE,
         self::EXABYTE,
         self::ZETTABYTE,
-        self::YOTTABYTES
+        self::YOTTABYTES,
+    ];
+
+    const BINARY_BYTE_UNITS = [
+        self::BYTE,
+        self::KIBIBYTE,
+        self::MEBIBYTE,
+        self::GIBIBYTE,
+        self::TEBIBYTE,
+        self::PEBIBYTE,
+        self::EXBIBYTE,
+        self::ZEBIBYTE,
+        self::YOBIBYTE,
     ];
 
     const BYTE_PRECISION = [0, 0, 1, 2, 2, 3, 3, 4, 4];
 
-    const BYTE_BINARY = 1024; //KiB/KB (base = 2)
-    const BYTE_DECIMAL = 1000; //kB (base = 10)
+    const BYTE_BINARY = 1024;
+    const BYTE_DECIMAL = 1000;
 
     public function __toString()
     {
         return (string) $this->forHumans();
+    }
+
+    public function getDefaultUnit()
+    {
+        return $this->unit ?? $this->from;
     }
 
     /**
@@ -53,11 +80,18 @@ class FileSize
     public function forHumans(): string
     {
         $bytes = $this->bytes;
+        $array = self::BINARY_BYTE_UNITS;
+        $byteStandard = self::BYTE_BINARY;
 
-        for ($i = 0; ($bytes / $this->getByteStandard()) >= 0.9 && $i < count(self::BYTE_UNITS)-1; $i++) {
-            $bytes /= $this->getByteStandard();
+        if($this->isDecimal()){
+            $array = self::DECIMAL_BYTE_UNITS;
+            $byteStandard = self::BYTE_DECIMAL;
         }
-        return round($bytes, $this->precision ??= self::BYTE_PRECISION[$i]) . ' ' . self::BYTE_UNITS[$i];
+
+        for ($i = 0; ($bytes / $byteStandard) >= 0.9 && $i < count($array)-1; $i++) {
+            $bytes /= $byteStandard;
+        }
+        return number_format($bytes, $this->precision ??= self::BYTE_PRECISION[$i]) . ' '. $array[$i];
     }
 
     /**
@@ -67,7 +101,7 @@ class FileSize
      */
     public function asString(): string
     {
-        return number_format($this->convert(), $this->getPrecision(), $this->decimalSeparator, $this->thousandSeparator) . " " . $this->unit;
+        return number_format($this->convert(), $this->getPrecision(), $this->decimalSeparator, $this->thousandSeparator) . " " . $this->getDefaultUnit();
     }
 
     protected function getPrecision(): string
@@ -75,19 +109,14 @@ class FileSize
         return $this->precision ??= self::BYTE_PRECISION[$this->byteUnitIndex($this->unit)];
     }
 
-    public function asNumber(): int|float
+    public function asNumber($precision = null): int|float
     {
-        return round($this->convert(), $this->getPrecision());
+        return round($this->convert(), $precision ?? $this->getPrecision());
     }
 
     public function asInteger(): int
     {
         return (int) round($this->convert());
-    }
-
-    protected function convert(): int|float
-    {
-        return $this->bytes / $this->multiplier($this->unit);
     }
 
     public function round($precision = null): self
@@ -96,31 +125,61 @@ class FileSize
         return $this;
     }
 
-    public function fromBytes($bytes = 0): self
+    public function getByteStandard(): int
     {
-        $this->bytes = $bytes;
-        return $this;
+        return $this->isDecimal() ? self::BYTE_DECIMAL : self::BYTE_BINARY;
     }
 
-    public function from(int|float $size = 0, string $unit = self::BYTE): self
+    public function getByteStandardFromUnit($unit): int
     {
-        $this->bytes = $size * $this->multiplier($unit);
-        return $this;
+        if($unit === self::BYTE){
+            return $this->getByteStandard();
+        }
+
+        if(array_search($unit, self::BINARY_BYTE_UNITS)){
+            return self::BYTE_BINARY;
+        }
+
+        return self::BYTE_DECIMAL;
     }
 
-    public function fromKilobytes($kilobytes = 0): self
+    protected function getBaseFromUnit($unit)
     {
-        return $this->from($kilobytes, self::KILOBYTE);
+        return $this->isBinaryByte($unit)
+            ? 2
+            : 10;
     }
 
-    public function fromMegabytes($megabytes = 0): self
+    protected function isBinaryByte($unit)
     {
-        return $this->from($megabytes, self::MEGABYTE);
+        return in_array($unit, self::BINARY_BYTE_UNITS);
     }
 
-    public function fromGigabytes($gigabytes = 0): self
+    public function byteUnitArray($unit)
     {
-        return $this->from($gigabytes, self::GIGABYTE);
+        return $this->isBinaryByte($unit)
+            ? self::BINARY_BYTE_UNITS
+            : self::DECIMAL_BYTE_UNITS;
+    }
+
+    public function byteUnitIndex($unit)
+    {
+        return array_search($unit, $this->byteUnitArray($unit));
+    }
+
+    public function multiplier($unitsTo)
+    {
+        return $this->getByteStandardFromUnit($unitsTo) ** $this->byteUnitIndex($unitsTo);
+    }
+
+    protected function convert(): int|float
+    {
+        return $this->bytes / $this->multiplier($this->unit);
+    }
+
+    protected function convertToBytes(int|float $size = 0, string $unit = self::BYTE)
+    {
+        return $size * $this->multiplier($unit);
     }
 
     public function base(int $base): self
@@ -134,43 +193,129 @@ class FileSize
 
     public function inDecimal(): self
     {
+        // map the current output index with the decimal index
+        $this->unit = self::DECIMAL_BYTE_UNITS[$this->byteUnitIndex($this->getDefaultUnit())];
         return $this->base(10);
     }
 
     public function inBinary(): self
     {
+        // map the current output index with the binary index
+        $this->unit = self::BINARY_BYTE_UNITS[$this->byteUnitIndex($this->getDefaultUnit())];
         return $this->base(2);
     }
 
-    protected function getByteStandard(): int
+    protected function isDecimal()
     {
-        return $this->base === 2 ? self::BYTE_BINARY : self::BYTE_DECIMAL;
+        return $this->base === 10;
+    }
+
+    protected function isBinary()
+    {
+        return $this->base === 2;
+    }
+
+    public function from(int|float $size = 0, string $unit = self::BYTE): self
+    {
+        $this->bytes = $this->convertToBytes($size, $unit);
+        $this->from = $unit;
+        return $this;
+    }
+
+    public function fromBytes($size = 0): self
+    {
+        return $this->from($size, self::BYTE);
+    }
+
+    public function fromKilobytes($size = 0): self
+    {
+        return $this->from($size, self::KILOBYTE);
+    }
+
+    public function fromKibibytes($size = 0): self
+    {
+        return $this->from($size, self::KIBIBYTE);
+    }
+
+    public function fromMegabytes($size = 0): self
+    {
+        return $this->from($size, self::MEGABYTE);
+    }
+
+    public function fromMebibytes($size = 0): self
+    {
+        return $this->from($size, self::MEBIBYTE);
+    }
+
+    public function fromGigabytes($size = 0): self
+    {
+        return $this->from($size, self::GIGABYTE);
+    }
+
+    public function fromGibibytes($size = 0): self
+    {
+        return $this->from($size, self::GIBIBYTE);
+    }
+
+    public function fromTerabytes($size = 0): self
+    {
+        return $this->from($size, self::TERABYTE);
+    }
+
+    public function fromPetabytes($size = 0): self
+    {
+        return $this->from($size, self::PETABYTE);
+    }
+
+    public function fromExabytes($size = 0): self
+    {
+        return $this->from($size, self::EXABYTE);
+    }
+
+    public function fromZettabytes($size = 0): self
+    {
+        return $this->from($size, self::ZETTABYTE);
+    }
+
+    public function fromYottabytes($size = 0): self
+    {
+        return $this->from($size, self::YOTTABYTES);
     }
 
     public static function parse($input)
     {
         preg_match('/(?P<size>-?[0-9\.]+)\s*(?P<unit>[A-z]+b|[bB])?$/i', trim($input), $matches, PREG_OFFSET_CAPTURE);
 
-        if (!isset($matches['size'])) {
+        $matchedUnit = strtoupper($matches['unit'][0] ?? 'B');
+        $decimalBytes = array_search($matchedUnit, array_map('strtoupper', self::DECIMAL_BYTE_UNITS));
+        $binaryBytes = array_search($matchedUnit, array_map('strtoupper', self::BINARY_BYTE_UNITS));
+
+        $unit = null;
+        if($decimalBytes !== false){
+            $unit = self::DECIMAL_BYTE_UNITS[$decimalBytes];
+        } elseif($binaryBytes !== false) {
+            $unit = self::BINARY_BYTE_UNITS[$binaryBytes];
+        }
+
+        if (!isset($matches['size']) || !isset($unit)) {
             throw new Exception("Could not parse \"{$input}\"");
         }
 
-        return (new self)->from((float) $matches['size'][0], strtoupper($matches['unit'][0] ?? 'B'));
-    }
-
-    protected function byteUnitIndex($unit)
-    {
-        return array_search($unit, self::BYTE_UNITS);
-    }
-
-    protected function multiplier($unitsTo)
-    {
-        return $this->getByteStandard() ** $this->byteUnitIndex($unitsTo);
+        return (new self)->from((float) $matches['size'][0], $unit);
     }
 
     public function to($unit): self
     {
         $this->unit = $unit;
+        $this->base(
+            $this->getBaseFromUnit($unit)
+        );
+        return $this;
+    }
+
+    public function toSame()
+    {
+        $this->unit = $this->getDefaultUnit();
         return $this;
     }
 
@@ -186,7 +331,12 @@ class FileSize
 
     public function toKilobytes(): self
     {
-        return $this->inDecimal()->to(self::KILOBYTE);
+        return $this->to(self::KILOBYTE);
+    }
+
+    public function toKibibytes(): self
+    {
+        return $this->to(self::KIBIBYTE);
     }
 
     public function toKb(): self
@@ -194,19 +344,19 @@ class FileSize
         return $this->toKilobytes();
     }
 
-    public function toKibibytes(): self
-    {
-        return $this->toKilobytes()->inBinary();
-    }
-
-    public function toKib(): self
+    public function toKiB(): self
     {
         return $this->toKibibytes();
     }
 
     public function toMegabytes(): self
     {
-        return $this->inDecimal()->to(self::MEGABYTE);
+        return $this->to(self::MEGABYTE);
+    }
+
+    public function toMebibytes(): self
+    {
+        return $this->to(self::MEBIBYTE);
     }
 
     public function toMb(): self
@@ -216,12 +366,17 @@ class FileSize
 
     public function toMib(): self
     {
-        return $this->toMegabytes()->inBinary();
+        return $this->toMebibytes();
     }
 
     public function toGigabytes(): self
     {
-        return $this->inDecimal()->to(self::GIGABYTE);
+        return $this->to(self::GIGABYTE);
+    }
+
+    public function toGibibytes(): self
+    {
+        return $this->to(self::GIBIBYTE);
     }
 
     public function toGb(): self
@@ -231,7 +386,7 @@ class FileSize
 
     public function toGib(): self
     {
-        return $this->toGigabytes()->inBinary();
+        return $this->toGibibytes();
     }
 
     public function toTerabytes(): self
