@@ -57,7 +57,7 @@ $filesize->fromGigabytes(1)
 ```
 
 ### For Humans
-This will automatically convert the given size to the most useful human format.
+This will automatically convert the given size to the most useful human format (defaults to decmial, i.e. GB)
 
 ```php
 
@@ -65,15 +65,15 @@ $filesize->fromBytes(1073741824)->round(2)->forHumans(); // "1.07 GB"
 
 $filesize->fromGigabytes(0.5)->forHumans(); // "512 MB"
 
+$filesize->fromBytes(15000)->inBinary()->round(1)->forHumans(); // '15.0 kB', or
 $filesize->fromBytes(15000)->inBinary()->round(1)->forHumans(); // '14.6 KiB', or
 $filesize->fromBytes(15000)->toKibibytes()->round(1)->forHumans(); // '14.6 KiB'
 
-$filesize->fromBytes(15000)->inDecimal()->round(1)->forHumans(); // '15.0 KB', or
-$filesize->fromBytes(15000)->toKibibytes()->round(1)->forHumans(); // '15.0 KB'
+$filesize->fromBytes(15000)->inDecimal()->round(1)->forHumans(); // '15.0 kB', or
+$filesize->fromBytes(15000)->toKibibytes()->round(1)->forHumans(); // '15.0 kB'
 
-$filesize->fromBytes(1073741824)->forHumans(); // "1 GB"
 
-$filesize->fromBytes(1073741824)->forHumans(); // "1.00 GiB"
+$filesize->fromBytes(1073741824)->inDecimal()->forHumans(); // "1.00 GiB"
 $filesize->fromBytes(1073741824)->toKibtyes()->forHumans(); // "1.00 GiB"
 $filesize->fromBytes(1073741824)->toMegabytes()->forHumans(); // "1.07 GB"
 $filesize->fromBytes(1073741824)->inDecimal()->forHumans(); // "1.07 GB"
@@ -84,7 +84,7 @@ $filesize->fromMegabytes(56156113)->forHumans(); // "53.55 TB"
 ### Parse input from string
 ``` php
 Filesize::parse('1 KB')->toBytes()->asInteger(); // 1024
-Filesize::parse('1 KB')->toKilobytes()->asString(); // "1 KB"
+Filesize::parse('1 KB')->toKilobytes()->asString(); // "1 kB"
 Filesize::parse('1 KB')->round(3)->toMb()->asString(); // "0.001 MB"
 ```
 

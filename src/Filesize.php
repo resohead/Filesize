@@ -15,7 +15,7 @@ class Filesize
     protected int $base = 10;
 
     const BYTE = 'B';
-    const KILOBYTE = 'KB';
+    const KILOBYTE = 'kB';
     const MEGABYTE = 'MB';
     const GIGABYTE = 'GB';
     const TERABYTE = 'TB';

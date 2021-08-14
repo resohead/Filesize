@@ -67,9 +67,9 @@ it('can set a default format for humans', function ($bytes, $decimal) {
         ->inDecimal()->forHumans()->toBe($decimal);
 })->with([
     [1, '1 B'],
-    [1000, '1 KB'],
-    [2000, '2 KB'],
-    [15000, '15 KB'],
+    [1000, '1 kB'],
+    [2000, '2 kB'],
+    [15000, '15 kB'],
     [1000000, '1.0 MB'],
     [1000000000, '1.00 GB'],
     [1500000000, '1.50 GB']
@@ -134,18 +134,18 @@ it('can format as a string', function () {
 
 it('can round numbers formatted as string', function () {
     expect((new Filesize)->fromKilobytes(1.5)->toKilobytes())
-        ->asString()->toBe('2 KB')
-        ->round(0)->asString()->toBe('2 KB')
-        ->round(1)->asString()->toBe('1.5 KB')
-        ->round(2)->asString()->toBe('1.50 KB')
-        ->round(2)->withDecimalSeparator(',')->asString()->toBe('1,50 KB');
+        ->asString()->toBe('2 kB')
+        ->round(0)->asString()->toBe('2 kB')
+        ->round(1)->asString()->toBe('1.5 kB')
+        ->round(2)->asString()->toBe('1.50 kB')
+        ->round(2)->withDecimalSeparator(',')->asString()->toBe('1,50 kB');
 
     expect((new Filesize)->fromKibibytes(1.5)->toKilobytes())
-        ->asString()->toBe('2 KB')
-        ->round(0)->asString()->toBe('2 KB')
-        ->round(1)->asString()->toBe('1.5 KB')
-        ->round(2)->asString()->toBe('1.54 KB')
-        ->round(2)->withDecimalSeparator(',')->asString()->toBe('1,54 KB');
+        ->asString()->toBe('2 kB')
+        ->round(0)->asString()->toBe('2 kB')
+        ->round(1)->asString()->toBe('1.5 kB')
+        ->round(2)->asString()->toBe('1.54 kB')
+        ->round(2)->withDecimalSeparator(',')->asString()->toBe('1,54 kB');
 });
 
 it('it uses the latest byte standard for calculations', function(){
