@@ -4,7 +4,7 @@ namespace Resohead\Filesize;
 
 use Exception;
 
-class FileSize
+class Filesize
 {
     protected $bytes;
     protected $precision = null;
@@ -12,7 +12,7 @@ class FileSize
     protected string $thousandSeparator = ',';
     protected ?string $unit = null;
     protected string $from = self::BYTE;
-    protected int $base = 2;
+    protected int $base = 10;
 
     const BYTE = 'B';
     const KILOBYTE = 'KB';
@@ -80,12 +80,12 @@ class FileSize
     public function forHumans(): string
     {
         $bytes = $this->bytes;
-        $array = self::BINARY_BYTE_UNITS;
-        $byteStandard = self::BYTE_BINARY;
+        $array = self::DECIMAL_BYTE_UNITS;
+        $byteStandard = self::BYTE_DECIMAL;
 
-        if($this->isDecimal()){
-            $array = self::DECIMAL_BYTE_UNITS;
-            $byteStandard = self::BYTE_DECIMAL;
+        if($this->isBinary()){
+            $array = self::BINARY_BYTE_UNITS;
+            $byteStandard = self::BYTE_BINARY;
         }
 
         for ($i = 0; ($bytes / $byteStandard) >= 0.9 && $i < count($array)-1; $i++) {
@@ -219,6 +219,7 @@ class FileSize
     {
         $this->bytes = $this->convertToBytes($size, $unit);
         $this->from = $unit;
+        // $this->unit = $unit;
         return $this;
     }
 

@@ -18,7 +18,7 @@ composer require resohead/filesize
 ### Basics
 
 ```php
-$filesize = new FileSize;
+$filesize = new Filesize;
 ```
 
 ```php
